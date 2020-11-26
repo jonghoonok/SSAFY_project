@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    {% comment %} <h3 class="mb-3">movie_list</h3>
+    <div class="row">
+        {% for movie in movies %}
+        <div class="col-3 mb-5">
+            <div class="card text-white bg-dark border-light" style="width: 15rem; height: 100%;">
+            <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" class="card-img-top" alt="...">
+            <div class="card-body d-flex flex-column justify-content-between">
+                <h5 class="card-title">{{ movie.title }}</h5>
+                <p class="card-text">{{ movie.overview|slice:50 }}...</p>
+                {% if movie.total_review %}
+                <div class="d-flex flex-column justify-content-between">
+                    <p>
+                    <span class="badge badge-pill badge-warning">평균 <i class="fas fa-star"></i>{{ movie.rank_avg }}</span>
+                    <span class="badge badge-pill badge-info">리뷰 {{ movie.total_review }}개</span>
+                    </p>
+                    <a href="#" class="btn btn-secondary mt-auto">리뷰 보러가기</a>
+                </div>
+                {% else %}
+                    <a href="{% url 'community:create' movie.title %}" class="btn btn-outline-light">리뷰가 없습니다.</a>
+                {% endif %}
+            </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+ {% endcomment %}
+
+<div>
+    {% for movie in movies %}
+        <div class="container_visual">
+            <!-- Promotion -->
+            <!-- 슬라이딩기능: 이미지 (type = 'th')를 순차적(javascript) 으로 노출 -->
+            <ul class="visual_img">
+            <c:forEach items="${promotionImages}" var="image">
+                <li><img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}"/></li>
+            </c:forEach>
+            </ul>
+        </div>
+        <span class="nxt_fix" style="display:none;"></span>
+    {% endfor %}
+</div>
+
+<script>
+.visual_img li {
+	position: relative;
+	display: inline;
+}
+
+.visual_img img {
+	width: 414px;
+	height: 318px;	
+}
+</script>
+{% endblock content %}

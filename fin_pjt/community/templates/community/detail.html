@@ -1,0 +1,858 @@
+{% comment %} {% extends 'base.html' %}
+{% load bootstrap4 %}
+
+{% block content %}
+
+<div class="jumbotron container">
+  <a href={% url 'movies:detail' review.movie_title %}>
+    <h1 class="lead text-dark"><i class="fas fa-film"></i> {{review.movie_title}}</h1>
+  </a>
+  <div class="row">
+    <h1 class="display-4">{{review.title}}</h1>
+    <div class="dropleft ml-auto">
+      <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false"><i class="fas fa-pen"></i></a>
+      <div class="dropdown-menu">
+        <a class="dropdown-item" href="{% url 'community:update' review.pk %}">Update</a>
+        <form action="{% url 'community:delete' review.pk %}" method="POST">
+          {% csrf_token %}
+          <button class="btn btn-link text-muted">&nbsp;&nbsp;Delete</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  <p class="text-muted mb-1">작성자 : <a href="{% url 'accounts:profile' review.user.pk %}">{{review.user}}</a></p>
+  <p class="text-muted">작성 일자: {{review.created_at}}&nbsp;&nbsp;|&nbsp;수정 일자: {{review.updated_at}} </p>
+  <hr>
+  <p class="lead">별점 : {% for star in stars %}
+      {% if star == 2 %}
+        <i class="fas fa-star" style="color:rgb(255,146,43);"></i>
+      {% elif star == 1 %}
+        <i class="fas fa-star-half-alt" style="color:rgb(255,146,43);"></i>
+      {% else %}
+        <i class="far fa-star" style="color:rgb(255,146,43);"></i>
+      {% endif %}
+     {% endfor %}</p>
+  <p class="lead">{{review.content}}</p>
+  <br>
+  <ul class="list-group">
+    <li class="list-group-item bg-dark text-white">
+      <form action="{% url 'community:like' review.pk%}" method='POST' class="d-inline">
+        {% csrf_token %}
+        {% if request.user in review.like_users.all %}
+          <button class="btn btn-link" style="color : crimson;">
+            <i class="fas fa-heart"></i>
+          </button>
+          {% else %}
+          <button class="btn btn-link" style="color : white;">
+            <i class="far fa-heart"></i>
+          </button>
+        {% endif %}
+      </form>
+      {{review.like_users.all|length}}명이 이 리뷰를 좋아합니다.
+    </li>
+    <li class="list-group-item">
+      {% if request.user.is_authenticated %}
+        <form action="{% url 'community:create_comment' review.pk %}" method="POST" class="form">
+          {% csrf_token %}
+          {% bootstrap_form comment_form %}
+          {% buttons %}
+            <button type="submit" class="btn text-white bg-dark">Comment</button>
+          {% endbuttons %}
+        </form>
+      {% else %}
+        <a href="{% url 'accounts:login' %}">댓글을 작성하려면 로그인 해주세요.</a><br><br>
+      {% endif %}
+    </li>
+    {% for comment in comments %}
+      <li class="list-group-item d-inline"><strong>{{comment.user}}</strong>&nbsp;|&nbsp;{{comment.content}}</li>
+    {% endfor %}
+  </ul>
+</div>
+
+<br>
+{% endblock content %} {% endcomment %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <!--  This file has been downloaded from bootdey.com    @bootdey on twitter -->
+    <!--  All snippets are MIT license http://bootdey.com/license -->
+    <title>bs4 Ratings and Reviews page - Bootdey.com</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="http://netdna.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous"/>
+    <style type="text/css">
+    	body{
+background:#dcdcdc;    
+}
+.total-like-user-main a {   
+    display: inline-block;
+    margin: 0 -17px 0 0;
+}
+.total-like {
+    border: 1px solid;
+    border-radius: 50px;
+    display: inline-block;
+    font-weight: 500;
+    height: 34px;
+    line-height: 33px;
+    padding: 0 13px;
+    vertical-align: top;
+}
+.restaurant-detailed-ratings-and-reviews hr {
+    margin: 0 -24px;
+}
+.graph-star-rating-header .star-rating {
+    font-size: 17px;
+}
+.progress {
+    background: #f2f4f8 none repeat scroll 0 0;
+    border-radius: 0;
+    height: 30px;
+}
+.rating-list {
+    display: inline-flex;
+    margin-bottom: 15px;
+    width: 100%;
+}
+.rating-list-left {
+    height: 16px;
+    line-height: 29px;
+    width: 10%;
+}
+.rating-list-center {
+    width: 80%;
+}
+.rating-list-right {
+    line-height: 29px;
+    text-align: right;
+    width: 10%;
+}
+.restaurant-slider-pics {
+    bottom: 0;
+    font-size: 12px;
+    left: 0;
+    z-index: 999;
+    padding: 0 10px;
+}
+.restaurant-slider-view-all {
+    bottom: 15px;
+    right: 15px;
+    z-index: 999;
+}
+.offer-dedicated-nav .nav-link.active,
+.offer-dedicated-nav .nav-link:hover,
+.offer-dedicated-nav .nav-link:focus {
+    border-color: #3868fb;
+    color: #3868fb;
+}
+.offer-dedicated-nav .nav-link {
+    border-bottom: 2px solid #fff;
+    color: #000000;
+    padding: 16px 0;
+    font-weight: 600;
+}
+.offer-dedicated-nav .nav-item {
+    margin: 0 37px 0 0;
+}
+.restaurant-detailed-action-btn {
+    margin-top: 12px;
+}
+.restaurant-detailed-header-right .btn-success {
+    border-radius: 3px;
+    height: 45px;
+    margin: -18px 0 18px;
+    min-width: 130px;
+    padding: 7px;
+}
+.text-black {
+    color: #000000;
+}
+.icon-overlap {
+    bottom: -23px;
+    font-size: 74px;
+    opacity: 0.23;
+    position: absolute;
+    right: -32px;
+}
+.menu-list img {
+    width: 41px;
+    height: 41px;
+    object-fit: cover;
+}
+.restaurant-detailed-header-left img {
+    width: 88px;
+    height: 88px;
+    border-radius: 3px;
+    object-fit: cover;
+    box-shadow: 0 .125rem .25rem rgba(0, 0, 0, .075)!important;
+}
+.reviews-members .media .mr-3 {
+    width: 56px;
+    height: 56px;
+    object-fit: cover;
+}
+.rounded-pill {
+    border-radius: 50rem!important;
+}
+.total-like-user {
+    border: 2px solid #fff;
+    height: 34px;
+    box-shadow: 0 .125rem .25rem rgba(0, 0, 0, .075)!important;
+    width: 34px;
+}
+.total-like-user-main a {
+    display: inline-block;
+    margin: 0 -17px 0 0;
+}
+.total-like {
+    border: 1px solid;
+    border-radius: 50px;
+    display: inline-block;
+    font-weight: 500;
+    height: 34px;
+    line-height: 33px;
+    padding: 0 13px;
+    vertical-align: top;
+}
+.restaurant-detailed-ratings-and-reviews hr {
+    margin: 0 -24px;
+}
+.graph-star-rating-header .star-rating {
+    font-size: 17px;
+}
+.progress {
+    background: #f2f4f8 none repeat scroll 0 0;
+    border-radius: 0;
+    height: 30px;
+}
+.rating-list {
+    display: inline-flex;
+    margin-bottom: 15px;
+    width: 100%;
+}
+.rating-list-left {
+    height: 16px;
+    line-height: 29px;
+    width: 10%;
+}
+.rating-list-center {
+    width: 80%;
+}
+.rating-list-right {
+    line-height: 29px;
+    text-align: right;
+    width: 10%;
+}
+.restaurant-slider-pics {
+    bottom: 0;
+    font-size: 12px;
+    left: 0;
+    z-index: 999;
+    padding: 0 10px;
+}
+.restaurant-slider-view-all {
+    bottom: 15px;
+    right: 15px;
+    z-index: 999;
+}
+
+.progress {
+    background: #f2f4f8 none repeat scroll 0 0;
+    border-radius: 0;
+    height: 30px;
+}
+
+
+
+
+    </style>
+</head>
+<body style="background-color:rgb(52, 58, 64)">
+{% load bootstrap4 %}
+
+<link rel="stylesheet" href="https://allyoucan.cloud/cdn/icofont/1.0.1/icofont.css" integrity="sha384-jbCTJB16Q17718YM9U22iJkhuGbS0Gd2LjaWb4YJEZToOPmnKDjySVa323U+W7Fv" crossorigin="anonymous">
+<div class="container">
+<div class="col-md-12">
+
+  <nav class="navbar navbar-expand-lg navbar-light mb-3">
+      <div class="container">
+        <a class="navbar-brand text-white" href="{% url 'community:index' %}">MOVIES</a>
+        <button class="navbar-toggler text-white1" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="d-flex flex-row bd-highlight">
+          <input id="inputEnter" type="text">
+        </div>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav">
+            {% if request.user.is_authenticated %}
+              <li class="nav-item">
+                <a class="p-2 text-white" href="{% url 'accounts:profile' request.user.pk %}">내 정보</a>
+                    <form action="{% url 'accounts:logout' %}" method="POST" class="d-inline">
+                      {% csrf_token %}
+                      <input type="submit" value="로그 아웃" class="btn btn-link p-2 mb-1 text-white">
+                    </form>
+              </li>
+            {% else %}
+            <link rel="stylesheet" href="">
+              <li class="nav-item">
+                <a class="nav-link text-white" href="{% url 'accounts:login' %}">로그인</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link text-white" href="{% url 'accounts:signup' %}">회원가입</a>
+              </li>
+            {% endif %}
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <div class="offer-dedicated-body-left">
+        <div class="tab-content" id="pills-tabContent">
+            <div class="tab-pane fade" id="pills-order-online" role="tabpanel" aria-labelledby="pills-order-online-tab">
+                <div id="#menu" class="bg-white rounded shadow-sm p-4 mb-4 explore-outlets">
+                    <h5 class="mb-4">Recommended</h5>
+                    <form class="explore-outlets-search mb-4">
+                        <div class="input-group">
+                            <input type="text" placeholder="Search for dishes..." class="form-control">
+                            <div class="input-group-append">
+                                <button type="button" class="btn btn-link">
+                                    <i class="icofont-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                    <h6 class="mb-3">Most Popular  <span class="badge badge-success"><i class="icofont-tags"></i> 15% Off All Items </span></h6>
+                    <div class="owl-carousel owl-theme owl-carousel-five offers-interested-carousel mb-3 owl-loaded owl-drag owl-hidden">
+
+                        <div class="owl-stage-outer">
+                            <div class="owl-stage" style="transform: translate3d(-682px, 0px, 0px); transition: all 0s ease 0s; width: 2183px;">
+                                <div class="owl-item cloned" style="width: 136.4px;">
+                                    <div class="item">
+                                        <div class="mall-category-item">
+                                            <a href="#">
+                                                <img class="img-fluid" src="img/list/2.png">
+                                                <h6>Sandwiches</h6>
+                                                <small>8 ITEMS</small>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="owl-item cloned" style="width: 136.4px;">
+                                    <div class="item">
+                                        <div class="mall-category-item">
+                                            <a href="#">
+                                                <img class="img-fluid" src="img/list/3.png">
+                                                <h6>Soups</h6>
+                                                <small>2 ITEMS</small>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="owl-item cloned" style="width: 136.4px;">
+                                    <div class="item">
+                                        <div class="mall-category-item">
+                                            <a href="#">
+                                                <img class="img-fluid" src="img/list/4.png">
+                                                <h6>Pizzas</h6>
+                                                <small>56 ITEMS</small>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="owl-item cloned" style="width: 136.4px;">
+                                    <div class="item">
+                                        <div class="mall-category-item">
+                                            <a href="#">
+                                                <img class="img-fluid" src="img/list/5.png">
+                                                <h6>Pastas</h6>
+                                                <small>10 ITEMS</small>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="owl-item cloned" style="width: 136.4px;">
+                                    <div class="item">
+                                        <div class="mall-category-item">
+                                            <a href="#">
+                                                <img class="img-fluid" src="img/list/6.png">
+                                                <h6>Chinese</h6>
+                                                <small>25 ITEMS</small>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="owl-item active" style="width: 136.4px;">
+                                    <div class="item">
+                                        <div class="mall-category-item">
+                                            <a href="#">
+                                                <img class="img-fluid" src="img/list/1.png">
+                                                <h6>Burgers</h6>
+                                                <small>5 ITEMS</small>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="owl-item active" style="width: 136.4px;">
+                                    <div class="item">
+                                        <div class="mall-category-item">
+                                            <a href="#">
+                                                <img class="img-fluid" src="img/list/2.png">
+                                                <h6>Sandwiches</h6>
+                                                <small>8 ITEMS</small>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="owl-item active" style="width: 136.4px;">
+                                    <div class="item">
+                                        <div class="mall-category-item">
+                                            <a href="#">
+                                                <img class="img-fluid" src="img/list/3.png">
+                                                <h6>Soups</h6>
+                                                <small>2 ITEMS</small>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="owl-item active" style="width: 136.4px;">
+                                    <div class="item">
+                                        <div class="mall-category-item">
+                                            <a href="#">
+                                                <img class="img-fluid" src="img/list/4.png">
+                                                <h6>Pizzas</h6>
+                                                <small>56 ITEMS</small>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="owl-item active" style="width: 136.4px;">
+                                    <div class="item">
+                                        <div class="mall-category-item">
+                                            <a href="#">
+                                                <img class="img-fluid" src="img/list/5.png">
+                                                <h6>Pastas</h6>
+                                                <small>10 ITEMS</small>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="owl-item" style="width: 136.4px;">
+                                    <div class="item">
+                                        <div class="mall-category-item">
+                                            <a href="#">
+                                                <img class="img-fluid" src="img/list/6.png">
+                                                <h6>Chinese</h6>
+                                                <small>25 ITEMS</small>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="owl-item cloned" style="width: 136.4px;">
+                                    <div class="item">
+                                        <div class="mall-category-item">
+                                            <a href="#">
+                                                <img class="img-fluid" src="img/list/1.png">
+                                                <h6>Burgers</h6>
+                                                <small>5 ITEMS</small>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="owl-item cloned" style="width: 136.4px;">
+                                    <div class="item">
+                                        <div class="mall-category-item">
+                                            <a href="#">
+                                                <img class="img-fluid" src="img/list/2.png">
+                                                <h6>Sandwiches</h6>
+                                                <small>8 ITEMS</small>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="owl-item cloned" style="width: 136.4px;">
+                                    <div class="item">
+                                        <div class="mall-category-item">
+                                            <a href="#">
+                                                <img class="img-fluid" src="img/list/3.png">
+                                                <h6>Soups</h6>
+                                                <small>2 ITEMS</small>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="owl-item cloned" style="width: 136.4px;">
+                                    <div class="item">
+                                        <div class="mall-category-item">
+                                            <a href="#">
+                                                <img class="img-fluid" src="img/list/4.png">
+                                                <h6>Pizzas</h6>
+                                                <small>56 ITEMS</small>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="owl-item cloned" style="width: 136.4px;">
+                                    <div class="item">
+                                        <div class="mall-category-item">
+                                            <a href="#">
+                                                <img class="img-fluid" src="img/list/5.png">
+                                                <h6>Pastas</h6>
+                                                <small>10 ITEMS</small>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="owl-nav">
+                            <button type="button" role="presentation" class="owl-prev"><i class="icofont-thin-left"></i></button>
+                            <button type="button" role="presentation" class="owl-next"><i class="icofont-thin-right"></i></button>
+                        </div>
+                        <div class="owl-dots disabled"></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <h5 class="mb-4 mt-3 col-md-12">Best Sellers</h5>
+                    <div class="col-md-4 col-sm-6 mb-4">
+                        <div class="list-card bg-white h-100 rounded overflow-hidden position-relative shadow-sm">
+                            <div class="list-card-image">
+                                <div class="star position-absolute"><span class="badge badge-success"><i class="icofont-star"></i> 3.1 (300+)</span></div>
+                                <div class="favourite-heart text-danger position-absolute"><a href="#"><i class="icofont-heart"></i></a></div>
+                                <div class="member-plan position-absolute"><span class="badge badge-dark">Promoted</span></div>
+                                <a href="#">
+                                    <img src="img/list/7.png" class="img-fluid item-img">
+                                </a>
+                            </div>
+                            <div class="p-3 position-relative">
+                                <div class="list-card-body">
+                                    <h6 class="mb-1"><a href="#" class="text-black">Bite Me Sandwiches</a></h6>
+                                    <p class="text-gray mb-2">North Indian • Indian</p>
+                                    <p class="text-gray time mb-0"><a class="btn btn-link btn-sm pl-0 text-black pr-0" href="#">$550 </a> <span class="badge badge-success">NEW</span> <span class="float-right"> 
+                                             <a class="btn btn-outline-secondary btn-sm" href="#">ADD</a>
+                                             </span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 col-sm-6 mb-4">
+                        <div class="list-card bg-white h-100 rounded overflow-hidden position-relative shadow-sm">
+                            <div class="list-card-image">
+                                <div class="star position-absolute"><span class="badge badge-success"><i class="icofont-star"></i> 3.1 (300+)</span></div>
+                                <div class="favourite-heart text-danger position-absolute"><a href="#"><i class="icofont-heart"></i></a></div>
+                                <div class="member-plan position-absolute"><span class="badge badge-dark">Promoted</span></div>
+                                <a href="#">
+                                    <img src="img/list/8.png" class="img-fluid item-img">
+                                </a>
+                            </div>
+                            <div class="p-3 position-relative">
+                                <div class="list-card-body">
+                                    <h6 class="mb-1"><a href="#" class="text-black">Famous Dave's Bar-B
+                                             </a>
+                                          </h6>
+                                    <p class="text-gray mb-2">Hamburgers • Indian</p>
+                                    <p class="text-gray time mb-0"><a class="btn btn-link btn-sm pl-0 text-black pr-0" href="#">$250 </a> <span class="badge badge-primary">NEW</span> <span class="float-right"> 
+                                             <span class="count-number">
+                                             <button class="btn btn-outline-secondary  btn-sm left dec"> <i class="icofont-minus"></i> </button>
+                                             <input class="count-number-input" type="text" value="1" readonly="">
+                                             <button class="btn btn-outline-secondary btn-sm right inc"> <i class="icofont-plus"></i> </button>
+                                             </span>
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 col-sm-6 mb-4">
+                        <div class="list-card bg-white h-100 rounded overflow-hidden position-relative shadow-sm">
+                            <div class="list-card-image">
+                                <div class="star position-absolute"><span class="badge badge-success"><i class="icofont-star"></i> 3.1 (300+)</span></div>
+                                <div class="favourite-heart text-danger position-absolute"><a href="#"><i class="icofont-heart"></i></a></div>
+                                <div class="member-plan position-absolute"><span class="badge badge-dark">Promoted</span></div>
+                                <a href="#">
+                                    <img src="img/list/9.png" class="img-fluid item-img">
+                                </a>
+                            </div>
+                            <div class="p-3 position-relative">
+                                <div class="list-card-body">
+                                    <h6 class="mb-1"><a href="#" class="text-black">Bite Me Sandwiches</a></h6>
+                                    <p class="text-gray mb-2">North Indian • Indian</p>
+                                    <p class="text-gray time mb-0"><a class="btn btn-link btn-sm pl-0 text-black pr-0" href="#">$250 </a> <span class="badge badge-info">NEW</span> <span class="float-right"> 
+                                             <a class="btn btn-outline-secondary btn-sm" href="#">ADD</a>
+                                             </span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <h5 class="mb-4 mt-3 col-md-12">Quick Bites <small class="h6 text-black-50">3 ITEMS</small></h5>
+                    <div class="col-md-12">
+                        <div class="bg-white rounded border shadow-sm mb-4">
+                            <div class="gold-members p-3 border-bottom">
+                                <a class="btn btn-outline-secondary btn-sm  float-right" href="#">ADD</a>
+                                <div class="media">
+                                    <div class="mr-3"><i class="icofont-ui-press text-danger food-item"></i></div>
+                                    <div class="media-body">
+                                        <h6 class="mb-1">Chicken Tikka Sub</h6>
+                                        <p class="text-gray mb-0">$314 - 12" (30 cm)</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="gold-members p-3 border-bottom">
+                                <span class="count-number float-right">
+                                       <button class="btn btn-outline-secondary  btn-sm left dec"> <i class="icofont-minus"></i> </button>
+                                       <input class="count-number-input" type="text" value="1" readonly="">
+                                       <button class="btn btn-outline-secondary btn-sm right inc"> <i class="icofont-plus"></i> </button>
+                                       </span>
+                                <div class="media">
+                                    <div class="mr-3"><i class="icofont-ui-press text-danger food-item"></i></div>
+                                    <div class="media-body">
+                                        <h6 class="mb-1">Cheese corn Roll <span class="badge badge-danger">BESTSELLER</span></h6>
+                                        <p class="text-gray mb-0">$600</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="gold-members p-3">
+                                <span class="count-number float-right">
+                                       <button class="btn btn-outline-secondary  btn-sm left dec"> <i class="icofont-minus"></i> </button>
+                                       <input class="count-number-input" type="text" value="1" readonly="">
+                                       <button class="btn btn-outline-secondary btn-sm right inc"> <i class="icofont-plus"></i> </button>
+                                       </span>
+                                <div class="media">
+                                    <div class="mr-3"><i class="icofont-ui-press text-success food-item"></i></div>
+                                    <div class="media-body">
+                                        <h6 class="mb-1">Cheese Spinach corn Roll <span class="badge badge-success">Pure Veg</span></h6>
+                                        <p class="text-gray mb-0">$600</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <h5 class="mb-4 mt-3 col-md-12">Starters <small class="h6 text-black-50">3 ITEMS</small></h5>
+                    <div class="col-md-12">
+                        <div class="bg-white rounded border shadow-sm mb-4">
+                            <div class="menu-list p-3 border-bottom">
+                                <span class="count-number float-right">
+                                       <button class="btn btn-outline-secondary  btn-sm left dec"> <i class="icofont-minus"></i> </button>
+                                       <input class="count-number-input" type="text" value="1" readonly="">
+                                       <button class="btn btn-outline-secondary btn-sm right inc"> <i class="icofont-plus"></i> </button>
+                                       </span>
+                                <div class="media">
+                                    <img class="mr-3 rounded-pill" src="img/5.jpg" alt="Generic placeholder image">
+                                    <div class="media-body">
+                                        <h6 class="mb-1">Veg Spring Roll</h6>
+                                        <p class="text-gray mb-0">$314 - 12" (30 cm)</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="menu-list p-3 border-bottom">
+                                <span class="count-number float-right">
+                                       <button class="btn btn-outline-secondary  btn-sm left dec"> <i class="icofont-minus"></i> </button>
+                                       <input class="count-number-input" type="text" value="1" readonly="">
+                                       <button class="btn btn-outline-secondary btn-sm right inc"> <i class="icofont-plus"></i> </button>
+                                       </span>
+                                <div class="media">
+                                    <img class="mr-3 rounded-pill" src="img/2.jpg" alt="Generic placeholder image">
+                                    <div class="media-body">
+                                        <h6 class="mb-1">Stuffed Mushroom <span class="badge badge-danger">BESTSELLER</span></h6>
+                                        <p class="text-gray mb-0">$600</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="menu-list p-3">
+                                <span class="count-number float-right">
+                                       <button class="btn btn-outline-secondary  btn-sm left dec"> <i class="icofont-minus"></i> </button>
+                                       <input class="count-number-input" type="text" value="1" readonly="">
+                                       <button class="btn btn-outline-secondary btn-sm right inc"> <i class="icofont-plus"></i> </button>
+                                       </span>
+                                <div class="media">
+                                    <img class="mr-3 rounded-pill" src="img/3.jpg" alt="Generic placeholder image">
+                                    <div class="media-body">
+                                        <h6 class="mb-1">Honey Chilli Potato
+                                                <span class="badge badge-success">Pure Veg</span>
+                                             </h6>
+                                        <p class="text-gray mb-0">$600</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <h5 class="mb-4 mt-3 col-md-12">Soups <small class="h6 text-black-50">8 ITEMS</small></h5>
+                    <div class="col-md-12">
+                        <div class="bg-white rounded border shadow-sm">
+                            <div class="gold-members p-3 border-bottom">
+                                <a class="btn btn-outline-secondary btn-sm  float-right" href="#">ADD</a>
+                                <div class="media">
+                                    <div class="mr-3"><i class="icofont-ui-press text-danger food-item"></i></div>
+                                    <div class="media-body">
+                                        <h6 class="mb-1">Tomato Dhania Shorba</h6>
+                                        <p class="text-gray mb-0">$314 - 12" (30 cm)</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="gold-members p-3 border-bottom">
+                                <a class="btn btn-outline-secondary btn-sm  float-right" href="#">ADD</a>
+                                <div class="media">
+                                    <div class="mr-3"><i class="icofont-ui-press text-danger food-item"></i></div>
+                                    <div class="media-body">
+                                        <h6 class="mb-1">Veg Manchow Soup</h6>
+                                        <p class="text-gray mb-0">$600</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="gold-members p-3 border-bottom">
+                                <span class="count-number float-right">
+                                       <button class="btn btn-outline-secondary  btn-sm left dec"> <i class="icofont-minus"></i> </button>
+                                       <input class="count-number-input" type="text" value="1" readonly="">
+                                       <button class="btn btn-outline-secondary btn-sm right inc"> <i class="icofont-plus"></i> </button>
+                                       </span>
+                                <div class="media">
+                                    <div class="mr-3"><i class="icofont-ui-press text-success food-item"></i></div>
+                                    <div class="media-body">
+                                        <h6 class="mb-1">Lemon Coriander Soup</h6>
+                                        <p class="text-gray mb-0">$600</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="gold-members p-3 border-bottom">
+                                <a class="btn btn-outline-secondary btn-sm  float-right" href="#">ADD</a>
+                                <div class="media">
+                                    <div class="mr-3"><i class="icofont-ui-press text-danger food-item"></i></div>
+                                    <div class="media-body">
+                                        <h6 class="mb-1">Tomato Dhania Shorba</h6>
+                                        <p class="text-gray mb-0">$314 - 12" (30 cm)</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="gold-members p-3 border-bottom">
+                                <a class="btn btn-outline-secondary btn-sm  float-right" href="#">ADD</a>
+                                <div class="media">
+                                    <div class="mr-3"><i class="icofont-ui-press text-danger food-item"></i></div>
+                                    <div class="media-body">
+                                        <h6 class="mb-1">Veg Manchow Soup</h6>
+                                        <p class="text-gray mb-0">$600</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="gold-members p-3">
+                                <a class="btn btn-outline-secondary btn-sm  float-right" href="#">ADD</a>
+                                <div class="media">
+                                    <div class="mr-3"><i class="icofont-ui-press text-success food-item"></i></div>
+                                    <div class="media-body">
+                                        <h6 class="mb-1">Lemon Coriander Soup</h6>
+                                        <p class="text-gray mb-0">$600</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="tab-pane fade active show" id="pills-reviews" role="tabpanel" aria-labelledby="pills-reviews-tab">                
+                <div class="bg-white rounded shadow-sm p-4 mb-4 restaurant-detailed-ratings-and-reviews">
+                    {% comment %} <a href="#" class="btn btn-outline-danger btn-sm float-right">DELETE</a> {% endcomment %}
+                    <div>
+                      <a href="{% url 'community:update' review.pk %}" class="btn btn-outline-info btn-sm float-right">UPDATE</a>
+                      <form action="{% url 'community:delete' review.pk %}" method="POST">
+                        {% csrf_token %}
+                        <button class="btn btn-outline-danger btn-sm float-right">&nbsp;&nbsp;DELETE</button>
+                      </form>
+                    
+                    </div>
+                    <a href={% url 'movies:detail' review.movie_title %}>
+                        <h1 class="lead text-dark"><i class="fas fa-quote-left"></i> {{review.movie_title}}</h1>
+                    </a>
+                    <div class="reviews-members pt-4 pb-4">
+                        <div class="media">
+                            <a href="#"><img alt="Generic placeholder image" src="http://bootdey.com/img/Content/avatar/avatar1.png" class="mr-3 rounded-pill"></a>
+                            <div class="media-body">
+                                <div class="reviews-members-header">
+                                    
+                                    <h6 class="mb-1"><a href="{% url 'accounts:profile' review.user.pk %}">{{review.user}}</a></h6>
+                                    <p class="text-gray">{{review.created_at}}</p>
+                                </div>
+                                <div class="reviews-members-body">
+                                    <h1>{{review.content}}</h1>
+                                </div>
+                                <div class="reviews-members-footer">
+                                  <p class="lead">평점 : {% for star in stars %}
+                                    {% if star == 2 %}
+                                      <i class="fas fa-star" style="color:rgb(250,140,40);"></i>
+                                    {% elif star == 1 %}
+                                      <i class="fas fa-star-half-alt" style="color:rgb(250,140,40);"></i>
+                                    {% else %}
+                                      <i class="far fa-star" style="color:rgb(250,140,40);"></i>
+                                    {% endif %}
+                                    {% endfor %}</p>
+                                  <form action="{% url 'community:like' review.pk%}" method='POST' class="d-inline">
+                                      {% csrf_token %}
+                                      {% if request.user in review.like_users.all %}
+                                        <button class="btn btn-link" style="color : crimson;">
+                                          <i class="fas fa-heart"></i>
+                                        </button>
+                                      {% else %}
+                                        <button class="btn btn-link" style="color : gray;">
+                                          <i class="far fa-heart"></i>
+                                        </button>
+                                      {% endif %}
+                                  </form>
+                                  {{review.like_users.all|length}}명이 이 리뷰를 좋아합니다.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded shadow-sm p-4 mb-5 rating-review-select-page">
+                    <h5 class="mb-4">Leave Comment</h5>
+                    <div class="mb-4">
+                        {% if request.user.is_authenticated %}
+                            <form action="{% url 'community:create_comment' review.pk %}" method="POST" class="form">
+                                {% csrf_token %}
+                                {% bootstrap_form comment_form %}
+                                {% buttons %}
+                                  <button type="submit" class="btn btn-primary btn-sm">Comment</button>
+                                {% endbuttons %}
+                            </form>
+                        {% else %}
+                            <a href="{% url 'accounts:login' %}">댓글을 작성하려면 로그인 해주세요.</a><br><br>
+                        {% endif %}
+                        
+                        
+                        
+                        {% for comment in comments %}
+                            <li class="list-group-item"><strong>{{comment.user}}</strong>&nbsp;|&nbsp;{{comment.content}}</li>
+                        {% endfor %}
+                      
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<script>
+  const inputEnter = document.querySelector('#inputEnter')
+  inputEnter.addEventListener('keypress', function () {
+    if (event.key === 'Enter') {
+      var movie_title = event.srcElement.value
+      window.location.href = "http://127.0.0.1:8000/movies/test/" + movie_title;
+    }
+  })
+</script>
+<script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+<script src="http://netdna.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<script type="text/javascript">
+</script>
+</body>
+</html>
