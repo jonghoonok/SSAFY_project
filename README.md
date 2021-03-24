@@ -16,7 +16,7 @@
 
 Django 기반으로 작성된 영화 리뷰 및 추천 기능을 담은 커뮤니티 사이트
 
-![Home](./fin_pjt/static/Home.jpg)
+![Home](./fin_pjt/static/home.jpg)
 
 
 
