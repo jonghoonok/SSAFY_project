@@ -89,8 +89,11 @@ def detail(request, title):
         10752: '전쟁',
         37: '서부극',
     }
-    genre = genres[movie['genre_ids'][0]]
-
+    if movie['genre_ids']:
+        genre = genres[movie['genre_ids'][0]]
+    else:
+        genre = genres[53]
+        
     # 해당 영화 리뷰를 검색하여 평점을 계산
     reviews = Review.objects.filter(movie_title=movie['title'])
     review_rank = 0

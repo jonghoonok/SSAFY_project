@@ -2,10 +2,9 @@
 <html lang="en" class="no-js">
 {% load static %}
 	<head>
-		<meta http-equiv="Compatible" content="no-cache"/>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<title>Diagonal Slideshow | Codrops</title>
+		<title>MOVIES</title>
 		<meta name="description" content="A triple view diagonal slideshow with content preview." />
 		<meta name="keywords" content="" />
 		<meta name="author" content="Codrops" />
@@ -43,6 +42,69 @@
 			</symbol>
 		</svg>
 		<main>
+			
+			<div class="slideshow">
+			
+			<div class="slideshow__deco"></div>
+			{% if request.user.is_authenticated %}
+				{% if posters %}
+					{% for poster in posters %}
+						<div class="slide">
+							<div class="slide__img-wrap">
+								<div class="slide__img" style="background-image: url('https://image.tmdb.org/t/p/w500/{{ poster.poster }}');">
+									<a class="text-white" href="{% url 'movies:detail' poster.title %}"></a>	
+								</div>
+							</div>
+							<div class="slide__side"></div>
+							<div class="slide__title-wrap">
+								<span class="slide__number">{{ poster.id }}</span>
+								<h3 class="slide__title">{{ poster.title }}</h3>
+								<h4 class="slide__subtitle">평점 : {{ poster.vote_average }} | 개봉일: {{ poster.release_date }} </h4>
+							</div>
+						</div>
+					{% endfor %}
+				{% else %}
+					{% for popularity in popularitys %}
+						<div class="slide">
+							<div class="slide__img-wrap">
+								<a class="text-white" href="{% url 'movies:detail' popularity.title %}"><div class="slide__img" style="background-image: url('https://image.tmdb.org/t/p/w500/{{ popularity.poster }}');"></div></a>	
+							</div>
+							<div class="slide__side"></div>
+							<div class="slide__title-wrap">
+								<span class="slide__number">{{ popularity.id }}</span>
+								<h3 class="slide__title">{{ popularity.title }}</h3>
+								<h4 class="slide__subtitle">평점 : {{ popularity.vote_average }} | 개봉일: {{ popularity.release_date }} </h4>
+							</div>
+						</div>
+					{% endfor %}
+				{% endif %}
+			{% else %}
+				{% for popularity in popularitys %}
+					<div class="slide">
+						<div class="slide__img-wrap">
+							<div class="slide__img" style="background-image: url('https://image.tmdb.org/t/p/w500/{{ popularity.poster }}');">
+								<a class="text-white" href="{% url 'movies:detail' popularity.title %}"></a>	
+							</div>
+						</div>
+						<div class="slide__side"></div>
+						<div class="slide__title-wrap">
+							<span class="slide__number">{{ popularity.id }}</span>
+							<h3 class="slide__title">{{ popularity.title }}</h3>
+							<h4 class="slide__subtitle">평점 : {{ popularity.vote_average }} | 개봉일: {{ popularity.release_date }} </h4>
+						</div>
+					</div>
+				{% endfor %}
+			{% endif %}
+			<button class="nav nav--prev">
+				<svg class="icon icon--navarrow-prev">
+					<use xlink:href="#icon-navarrow"></use>
+				</svg>
+			</button>
+			<button class="nav nav--next">
+				<svg class="icon icon--navarrow-next">
+					<use xlink:href="#icon-navarrow"></use>
+				</svg>
+			</button>
 			<div class="frame">
 				<header class="codrops-header">
 					<h1 class="codrops-header__title">
@@ -60,7 +122,7 @@
 						<input id="inputEnter" type="text" style="pointer-events: auto;">
 						{% if request.user.is_authenticated %}
 							{% comment %} <form action="{% url 'accounts:logout' %}" method="POST" class="d-inline">
-                            	{% csrf_token %}
+								{% csrf_token %}
 								<div id="container">
 									<input type="submit" value="로그 아웃" class="learn-more">
 								</div>
@@ -72,67 +134,6 @@
 					</div>
 				</header>
 			</div>
-			
-		<div class="slideshow">
-			<div class="slideshow__deco"></div>
-				{% if request.user.is_authenticated %}
-					{% if posters %}
-						{% for poster in posters %}
-							<div class="slide">
-								<div class="slide__img-wrap">
-									<!-- <a class="text-white" href="{% url 'movies:detail' poster.title %}"> -->
-										<div class="slide__img" style="background-image: url('https://image.tmdb.org/t/p/w500/{{ poster.poster }}');"></div>
-									<!-- </a>	 -->
-								</div>
-								<div class="slide__side"></div>
-								<div class="slide__title-wrap">
-									<span class="slide__number">{{ poster.id }}</span>
-									<h3 class="slide__title">{{ poster.title }}</h3>
-									<h4 class="slide__subtitle">평점 : {{ poster.vote_average }} | 개봉일: {{ poster.release_date }} </h4>
-								</div>
-							</div>
-						{% endfor %}
-					{% else %}
-						{% for popularity in popularitys %}
-							<div class="slide">
-								<div class="slide__img-wrap">
-									<a class="text-white" href="{% url 'movies:detail' popularity.title %}"><div class="slide__img" style="background-image: url('https://image.tmdb.org/t/p/w500/{{ popularity.poster }}');"></div></a>	
-								</div>
-								<div class="slide__side"></div>
-								<div class="slide__title-wrap">
-									<span class="slide__number">{{ popularity.id }}</span>
-									<h3 class="slide__title">{{ popularity.title }}</h3>
-									<h4 class="slide__subtitle">평점 : {{ popularity.vote_average }} | 개봉일: {{ popularity.release_date }} </h4>
-								</div>
-							</div>
-						{% endfor %}
-					{% endif %}
-				{% else %}
-					{% for popularity in popularitys %}
-						<div class="slide">
-							<div class="slide__img-wrap">
-								<a class="text-white" href="{% url 'movies:detail' popularity.title %}"><div class="slide__img" style="background-image: url('https://image.tmdb.org/t/p/w500/{{ popularity.poster }}');"></div></a>	
-							</div>
-							<div class="slide__side"></div>
-							<div class="slide__title-wrap">
-								<span class="slide__number">{{ popularity.id }}</span>
-								<h3 class="slide__title">{{ popularity.title }}</h3>
-								<h4 class="slide__subtitle">평점 : {{ popularity.vote_average }} | 개봉일: {{ popularity.release_date }} </h4>
-							</div>
-						</div>
-					{% endfor %}
-				{% endif %}
-			
-			<button class="nav nav--prev">
-				<svg class="icon icon--navarrow-prev">
-					<use xlink:href="#icon-navarrow"></use>
-				</svg>
-			</button>
-			<button class="nav nav--next">
-				<svg class="icon icon--navarrow-next">
-					<use xlink:href="#icon-navarrow"></use>
-				</svg>
-			</button>
 		</div>
 		<div style="vertical-align:top" size="20" class="content">
 		{% if request.user.is_authenticated %}

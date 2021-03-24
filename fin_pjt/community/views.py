@@ -132,7 +132,11 @@ def detail(request, review_pk):
         'comment_form':comment_form,
         'comments':comments,
         'stars':stars,
+        'user':False
     }
+    if request.user == review.user:
+        context['user'] = True
+
     return render(request, 'community/detail.html', context)
 
 
