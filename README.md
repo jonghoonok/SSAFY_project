@@ -18,11 +18,6 @@
 
 ![Django](https://img.shields.io/badge/Django-3.1-blue) 기반으로 작성된 영화 리뷰 및 추천 기능을 담은 커뮤니티 사이트
 
-<<<<<<< HEAD
-=======
-![Home](./fin_pjt/static/home.jpg)
->>>>>>> d9f77d5c650559e63d0ad86951b07fb66b3d5048
-
 
 **홈 화면**
 
