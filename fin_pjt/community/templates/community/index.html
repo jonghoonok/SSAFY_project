@@ -42,7 +42,35 @@
 			</symbol>
 		</svg>
 		<main>
-			
+			<div class="frame">
+				<header class="codrops-header">
+					<h1 class="codrops-header__title">
+						{% if request.user.is_authenticated %}
+							<h1>
+								<a style="color:white" href="{% url 'accounts:profile' request.user.pk %}">{{ request.user }} 님만을 위한 추천영화!</a>
+							</h1>
+						{% else %}
+							<h1>
+								Movies가 추천하는 TOP 10
+							</h1>
+						{% endif %}
+					</h1>
+					<div class="codrops-links">
+						<input id="inputEnter" type="text" style="pointer-events: auto;">
+						{% if request.user.is_authenticated %}
+							{% comment %} <form action="{% url 'accounts:logout' %}" method="POST" class="d-inline">
+								{% csrf_token %}
+								<div id="container">
+									<input type="submit" value="로그 아웃" class="learn-more">
+								</div>
+							</form>  {% endcomment %}
+						{% else %}
+							　<a href="{% url 'accounts:login' %}">로그인</a>　| 
+							　<a href="{% url 'accounts:signup' %}">회원가입</a>　
+						{% endif %}
+					</div>
+				</header>
+			</div>
 			<div class="slideshow">
 			
 			<div class="slideshow__deco"></div>
@@ -105,35 +133,6 @@
 					<use xlink:href="#icon-navarrow"></use>
 				</svg>
 			</button>
-			<div class="frame">
-				<header class="codrops-header">
-					<h1 class="codrops-header__title">
-						{% if request.user.is_authenticated %}
-							<h1>
-								<a style="color:white" href="{% url 'accounts:profile' request.user.pk %}">{{ request.user }} 님만을 위한 추천영화!</a>
-							</h1>
-						{% else %}
-							<h1>
-								Movies가 추천하는 TOP 10
-							</h1>
-						{% endif %}
-					</h1>
-					<div class="codrops-links">
-						<input id="inputEnter" type="text" style="pointer-events: auto;">
-						{% if request.user.is_authenticated %}
-							{% comment %} <form action="{% url 'accounts:logout' %}" method="POST" class="d-inline">
-								{% csrf_token %}
-								<div id="container">
-									<input type="submit" value="로그 아웃" class="learn-more">
-								</div>
-							</form>  {% endcomment %}
-						{% else %}
-							　<a href="{% url 'accounts:login' %}">로그인</a>　| 
-							　<a href="{% url 'accounts:signup' %}">회원가입</a>　
-						{% endif %}
-					</div>
-				</header>
-			</div>
 		</div>
 		<div style="vertical-align:top" size="20" class="content">
 		{% if request.user.is_authenticated %}
